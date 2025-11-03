@@ -1,9 +1,11 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
+import { CartContext } from "../context/CartContext"; // 👈 add this
 
 export default function ProductCard({ product }) {
   const { updateProduct } = useContext(ProductContext);
+  const { addToCart } = useContext(CartContext); // 👈 use cart
 
   const subtotal = product.price * product.quantity;
   const lowStock = product.quantity < 5;
@@ -17,16 +19,29 @@ export default function ProductCard({ product }) {
   }
 
   return (
-    <div style={{
-      border: "1px solid #eee",
-      padding: 12,
-      borderRadius: 8,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-      background: "#fff"
-    }}>
-      <img src={product.image} alt={product.name} style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 6 }} />
+    <div
+      style={{
+        border: "1px solid #eee",
+        padding: 12,
+        borderRadius: 8,
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+        background: "#fff",
+      }}
+    >
+      <img
+        src={product.image}
+        alt={product.name}
+        style={{
+          width: "100%",
+          height: 160,
+          objectFit: "cover",
+          borderRadius: 6,
+        }}
+      />
       <h3 style={{ margin: "8px 0" }}>{product.name}</h3>
-      <div style={{ fontSize: 14, color: "#555" }}>{product.category} • Rating: {product.rating}</div>
+      <div style={{ fontSize: 14, color: "#555" }}>
+        {product.category} • Rating: {product.rating}
+      </div>
 
       <div style={{ marginTop: 8 }}>
         <div>Price: ${product.price.toFixed(2)}</div>
@@ -40,7 +55,16 @@ export default function ProductCard({ product }) {
       </div>
 
       {lowStock && (
-        <div style={{ marginTop: 8, color: "white", background: "#e74c3c", padding: "6px 8px", borderRadius: 4, display: "inline-block" }}>
+        <div
+          style={{
+            marginTop: 8,
+            color: "white",
+            background: "#e74c3c",
+            padding: "6px 8px",
+            borderRadius: 4,
+            display: "inline-block",
+          }}
+        >
           Low Stock
         </div>
       )}
@@ -49,9 +73,7 @@ export default function ProductCard({ product }) {
         <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
           <button>View Details</button>
         </Link>
-
-        {/* fixed button markup below */}
-        <button>Add to Cart (placeholder)</button>
+        <button onClick={() => addToCart(product)}>Add to Cart</button>
       </div>
     </div>
   );
