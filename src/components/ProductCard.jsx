@@ -1,21 +1,22 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
-import { CartContext } from "../context/CartContext"; // 👈 add this
+import { CartContext } from "../context/CartContext";
 
 export default function ProductCard({ product }) {
   const { updateProduct } = useContext(ProductContext);
-  const { addToCart } = useContext(CartContext); // 👈 use cart
+  const { addToCart } = useContext(CartContext);
 
   const subtotal = product.price * product.quantity;
   const lowStock = product.quantity < 5;
 
-  function increment() {
-    updateProduct(product.id, { quantity: product.quantity + 1 });
-  }
-  function decrement() {
-    const newQty = Math.max(0, product.quantity - 1);
-    updateProduct(product.id, { quantity: newQty });
+  // 🛒 when user clicks Add to Cart
+  function handleAddToCart() {
+    if (product.quantity > 0) {
+      addToCart(product);
+      // decrease stock count by 1 in main product list
+      updateProduct(product.id, { quantity: product.quantity - 1 });
+    }
   }
 
   return (
@@ -46,15 +47,34 @@ export default function ProductCard({ product }) {
       <div style={{ marginTop: 8 }}>
         <div>Price: ${product.price.toFixed(2)}</div>
         <div>
-          Quantity:
-          <button onClick={decrement} style={{ marginLeft: 8 }}>−</button>
-          <span style={{ margin: "0 8px" }}>{product.quantity}</span>
-          <button onClick={increment}>+</button>
+          Quantity:{" "}
+          <strong
+            style={{
+              color: product.quantity === 0 ? "#e74c3c" : "#2b2d42",
+            }}
+          >
+            {product.quantity} left
+          </strong>
         </div>
         <div>Subtotal: ${subtotal.toFixed(2)}</div>
       </div>
 
-      {lowStock && (
+      {lowStock && product.quantity > 0 && (
+        <div
+          style={{
+            marginTop: 8,
+            color: "white",
+            background: "#e67e22",
+            padding: "6px 8px",
+            borderRadius: 4,
+            display: "inline-block",
+          }}
+        >
+          Low Stock
+        </div>
+      )}
+
+      {product.quantity === 0 && (
         <div
           style={{
             marginTop: 8,
@@ -65,7 +85,7 @@ export default function ProductCard({ product }) {
             display: "inline-block",
           }}
         >
-          Low Stock
+          Out of Stock
         </div>
       )}
 
@@ -73,7 +93,16 @@ export default function ProductCard({ product }) {
         <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
           <button>View Details</button>
         </Link>
-        <button onClick={() => addToCart(product)}>Add to Cart</button>
+        <button
+          onClick={handleAddToCart}
+          disabled={product.quantity === 0}
+          style={{
+            opacity: product.quantity === 0 ? 0.5 : 1,
+            cursor: product.quantity === 0 ? "not-allowed" : "pointer",
+          }}
+        >
+          {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
+        </button>
       </div>
     </div>
   );
